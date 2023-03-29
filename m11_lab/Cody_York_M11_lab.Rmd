@@ -1,0 +1,164 @@
+---
+title: "Cody_York_M11_lab"
+author: "Cody York"
+date: "2022-11-07"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Imports
+    This is where I am keeping all my R library import statements.
+
+```{r}
+library(readr)
+library(plotrix)
+
+```
+
+## Read the Dataset
+    For this step I am using the readr library to read in the csv containing the data and viewing it to make sure it is coming correctly. I will also get the population mean since we will need that in the future.
+
+```{r}
+
+Soil_Organic_Carbon <- read_csv("Soil Organic Carbon.csv")
+#View(Soil_Organic_Carbon)
+
+pop_mean <- mean(Soil_Organic_Carbon$`0-5cm`)
+```
+
+## Sample 50 rows and for 100 times calulate the 95% Confidence Level
+    For the first part of this task I will be using the sampling method we learned form t he last R lab. 
+    
+  1. I first set the seed so that the randomness won't be different every time for testing the code.
+  2. Next, I create a variable to hold the number of samples I need.
+  3. Next, I set a variable to the number of runs.
+  4. Now, I will create a function that will run 100 times to get the data we need.
+  5. Then, I get the samples from the imported data set above using the sample() command in R.
+  6. After this I will calculate the z-value using the qnorm() function and the alpha of 95% confidence interval which is .025.
+  7. I will then get the mean and standard deviation of the sample.
+  8. Next, I will calculate the margin of error. This is the z-value times the standard deviation divided by the square root of the sample size.
+  9. After getting those pieces of information, I will calculate the lower and upper bounds of the confidence interval by subtracting and adding the margin of error to the sample mean.
+  10. I will then run the function 100 times using the replicate function to get the data.
+  11. Next I do a transpose on the data to get the three observations I need.
+    
+```{r}
+
+set.seed(111)
+
+number_of_samples <- 50
+
+runs <- 100
+
+population_mean <- 
+
+one.trial <- function(){
+  Soil_Organic_Carbon_50_Sample <- Soil_Organic_Carbon[
+    sample(nrow(Soil_Organic_Carbon),number_of_samples),2
+  ]
+  positive_z <- qnorm(.975)
+  negative_z <- qnorm(.025)
+  sample_mean <- mean(Soil_Organic_Carbon_50_Sample$`0-5cm`)
+  standard_deviation <- sd(Soil_Organic_Carbon_50_Sample$`0-5cm`)
+  margin_of_error <- positive_z * (standard_deviation/sqrt(number_of_samples))
+  lower_bound <- sample_mean - margin_of_error
+  upper_bound <- sample_mean + margin_of_error
+  middle_of_bounds <- (lower_bound + upper_bound) / 2
+  confidence_intervals <- c(middle_of_bounds, upper_bound, lower_bound)
+  return(list(middle_of_bounds, upper_bound, lower_bound))
+}
+
+sample_50_confidence_interval <- replicate(runs, one.trial())
+
+final_sample_50_confidence_interval <- as.data.frame(
+  t(sample_50_confidence_interval))
+
+
+```
+
+## Graph the 50 sample confidence intervals
+  Now I will graph the confidence intervals collected above for the 50 samples.
+  1. First, I will set the sample index to the number of runs form above.
+  2. Next, I will use plotCI() to plot the middle, upper, and lower confidence intervals.
+  3. Then I will add the population mean to the observations in the plotCI().
+
+```{r}
+
+sample_index <- c(1:runs)
+
+plotCI(sample_index, 
+       as.numeric(final_sample_50_confidence_interval$V1),
+       as.numeric(final_sample_50_confidence_interval$V2),
+       as.numeric(final_sample_50_confidence_interval$V3),
+       lwd = 0.5,
+       col = "red",
+       scol = "green",
+       ylab = c("CI"),
+       xlab = c("Sample Index")
+       )
+plotCI(sample_index, 
+       rep(as.integer(pop_mean), runs), 0, 0, col = "blue", add = TRUE)
+
+
+```
+## Sample 15 rows and for 100 times calulate the 95% Confidence Level
+    I will now do the same as above but only use 15 rows as a sample instead of 50.
+    
+```{r}
+
+set.seed(111)
+
+number_of_samples <- 15
+
+runs <- 100
+
+population_mean <- 
+
+one.trial <- function(){
+  Soil_Organic_Carbon_15_Sample <- Soil_Organic_Carbon[
+    sample(nrow(Soil_Organic_Carbon),number_of_samples),2
+  ]
+  positive_z <- qnorm(.975)
+  negative_z <- qnorm(.025)
+  sample_mean <- mean(Soil_Organic_Carbon_15_Sample$`0-5cm`)
+  standard_deviation <- sd(Soil_Organic_Carbon_15_Sample$`0-5cm`)
+  margin_of_error <- positive_z * (standard_deviation/sqrt(number_of_samples))
+  lower_bound <- sample_mean - margin_of_error
+  upper_bound <- sample_mean + margin_of_error
+  middle_of_bounds <- (lower_bound + upper_bound) / 2
+  confidence_intervals <- c(middle_of_bounds, upper_bound, lower_bound)
+  return(list(middle_of_bounds, upper_bound, lower_bound))
+}
+
+sample_15_confidence_interval <- replicate(runs, one.trial())
+
+final_sample_15_confidence_interval <- as.data.frame(
+  t(sample_15_confidence_interval))
+
+```
+
+## Graph the 15 sample confidence intervals
+    I will now graph the 15 samples like I did for the above 50 samples.
+    
+```{r}
+
+sample_index <- c(1:runs)
+
+plotCI(sample_index, 
+       as.numeric(final_sample_15_confidence_interval$V1),
+       as.numeric(final_sample_15_confidence_interval$V2),
+       as.numeric(final_sample_15_confidence_interval$V3),
+       lwd = 0.5,
+       col = "red",
+       scol = "green",
+       ylab = c("CI"),
+       xlab = c("Sample Index")
+       )
+plotCI(sample_index, 
+       rep(as.integer(pop_mean), runs), 0, 0, col = "blue", add = TRUE)
+
+
+
+```

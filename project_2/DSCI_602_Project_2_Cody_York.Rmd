@@ -1,0 +1,258 @@
+---
+title: "DSCI_602_Project_2_Cody_York"
+author: "Cody York"
+date: "2022-12-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(tidyverse)
+```
+
+## Data Ingestion and Pre-processing
+    
+    The below R code will ingest the data and do any cleanup or preprocessing required. The datasets that will be used for statistics and graphing will also be created here.
+    
+```{r}
+
+COVID_19_Deaths <- read_csv("Provisional_COVID-19_Deaths_by_Sex_and_Age.csv")
+
+Covid_19_Total_Deaths <- COVID_19_Deaths[1,10]
+
+Total_Deaths <- COVID_19_Deaths[1,11]
+
+COVID_19_Deaths_by_Age <- COVID_19_Deaths %>%
+                            filter(COVID_19_Deaths$State == "United States" 
+                                   & COVID_19_Deaths$`Age Group` != "All Ages"
+                                   & COVID_19_Deaths$Sex == "All Sexes"
+                                   & COVID_19_Deaths$Group == "By Total"
+                                   ) %>%
+                            select(`Age Group`, `COVID-19 Deaths`,
+                                   `Total Deaths`)
+
+COVID_19_Deaths_by_Age_DF <- data.frame(COVID_19_Deaths_by_Age)
+
+COVID_19_Deaths_by_Sex <- COVID_19_Deaths %>%
+                          filter(COVID_19_Deaths$State == "United States" 
+                                   & COVID_19_Deaths$`Age Group` == "All Ages"
+                                   & COVID_19_Deaths$Sex != "All Sexes"
+                                   & COVID_19_Deaths$Group == "By Total"
+                                   ) %>%
+                            select(Sex, `COVID-19 Deaths`,`Total Deaths`)
+
+
+COVID_19_Deaths_by_Sex_DF <- data.frame(COVID_19_Deaths_by_Sex)
+
+```
+
+## Graphing if Age Increases Chance of Death by Covid-19 
+    
+    The below code will graph the different age groups into a barplot with the calculated average Covid-19 Deaths. I am multiplying by 100 so we can see a percentage in the graph. This average was calculated by taking each age category and dividing it by the earlier created variable Covid_19_Total_Deaths. I have also created the average total deaths by age group using the the earlier created variable Total_Deaths. I have also created an age_groups variable so I can get only the age_groups I want to show in the graph. I have also calculated the mean and standard deviation of the data to be used later.
+
+```{r}
+  
+  Covid_19_Avg_Deaths_By_Age <- COVID_19_Deaths_by_Age_DF %>%
+                                  group_by(Age.Group) %>%
+                                  filter(COVID.19.Deaths != "NA") %>%
+                                  summarise(
+                                    deaths_by_age = sum(COVID.19.Deaths),
+                                    total_deaths_by_age = sum(Total.Deaths),
+                                    avg_deaths_by_age = round 
+                                    (
+                                      deaths_by_age / Covid_19_Total_Deaths,
+                                      digits = 4
+                                    ),
+                                    avg_deaths_by_age_from_total = round
+                                    (
+                                      deaths_by_age / Total_Deaths,
+                                      digits = 4
+                                    )
+                                  )
+  
+  age_groups <- c("0-17 years", "18-29 years", "30-39 years", "40-49 years",
+                  "50-64 years", "65-74 years", "75-84 years", 
+                  "85 years and over")
+  
+  Covid_19_Avg_Deaths_By_Age_DF <- data.frame(Covid_19_Avg_Deaths_By_Age) %>%
+                                   filter(Age.Group %in% age_groups)
+  
+  std_dev_of_Covid_19_Avg_Deaths_By_Age <- sd(
+    as.numeric(
+      unlist(
+        Covid_19_Avg_Deaths_By_Age_DF$avg_deaths_by_age
+        )
+      )
+    )
+  
+  mean_of_Covid_19_Avg_Deaths_By_Age <- mean(
+    as.numeric(
+      unlist(
+        Covid_19_Avg_Deaths_By_Age_DF$avg_deaths_by_age
+        )
+      )
+    )
+
+ barplot(as.numeric(
+   unlist(Covid_19_Avg_Deaths_By_Age_DF$avg_deaths_by_age))*100,
+          ylim = c(0,100),
+          names.arg = Covid_19_Avg_Deaths_By_Age_DF$Age.Group,
+          main = "Covid-19 Deaths Average % by Age Group",
+          cex.names = 0.5,
+          xlab = "Age Group",
+          ylab = "Average Deaths by %",
+          border = "black",
+          col = rainbow(6)
+         ) 
+```
+
+## Graphing Covid-19 Age Deaths Based on Total Deaths 
+    The below code will graph the different age groups into a barplot with the calculated average Total Deaths by age. I am multiplying by 100 so we can see a percentage in the graph.
+
+```{r}
+
+ barplot(as.numeric(
+   unlist(Covid_19_Avg_Deaths_By_Age_DF$avg_deaths_by_age_from_total))*100,
+          ylim = c(0,100),
+          names.arg = Covid_19_Avg_Deaths_By_Age_DF$Age.Group,
+          main = "Covid-19 Death Average % by Age Group from Total Deaths",
+          cex.names = 0.5,
+          xlab = "Age Group",
+          ylab = "Average Deaths by %",
+          border = "black",
+          col = rainbow(6)
+         ) 
+
+
+```
+
+## Graphing Total Deaths by Age Group
+
+  The below code will graph the different age groups into a barplot with the Total Deaths by age. This graph is simply for informational purposes.
+
+```{r}
+
+ barplot(as.numeric(
+   unlist(Covid_19_Avg_Deaths_By_Age_DF$total_deaths_by_age)),
+          names.arg = Covid_19_Avg_Deaths_By_Age_DF$Age.Group,
+          main = "Total Deaths by Age Group",
+          cex.names = 0.5,
+          xlab = "Age Group",
+          ylab = "Total Deaths",
+          border = "black",
+          col = rainbow(6)
+         ) 
+
+```
+
+## Graphing if Gender Increases Chance of Death by Covid-19 
+  The below code will graph the different genders into a barplot with the calculated average Covid-19 Deaths. I am multiplying by 100 so we can see a percentage in the graph. This average was calculated by taking each gender category and dividing it by the earlier created variable Covid_19_Total_Deaths. I have also created the average total deaths by age group using the the earlier created variable Total_Deaths. I have also calculated the mean and standard deviation of the data to be used later.
+
+```{r}
+
+  Covid_19_Avg_Deaths_By_Gender <- COVID_19_Deaths_by_Sex_DF %>%
+                                  group_by(Sex) %>%
+                                  filter(COVID.19.Deaths != "NA") %>%
+                                  summarise(
+                                    deaths_by_sex = sum(COVID.19.Deaths),
+                                    avg_deaths_by_sex = round 
+                                    (
+                                      deaths_by_sex / Covid_19_Total_Deaths,
+                                      digits = 4
+                                    ),                                                                             avg_deaths_by_sex_from_total = round
+                                    (
+                                      deaths_by_sex / Total_Deaths,
+                                      digits = 4
+                                    ),
+                                    total_deaths_by_sex = sum(Total.Deaths)
+                                  )
+
+ Covid_19_Avg_Deaths_By_Gender_DF = data.frame(Covid_19_Avg_Deaths_By_Gender)
+ 
+   std_dev_of_Covid_19_Avg_Deaths_By_Gender <- sd(
+    as.numeric(
+      unlist(
+        Covid_19_Avg_Deaths_By_Gender_DF$avg_deaths_by_sex
+        )
+      )
+    )
+   
+  mean_of_Covid_19_Avg_Deaths_By_Gender <- mean(
+    as.numeric(
+      unlist(
+        Covid_19_Avg_Deaths_By_Gender_DF$avg_deaths_by_sex
+        )
+      )
+    )
+ 
+  barplot(as.numeric(
+   unlist(Covid_19_Avg_Deaths_By_Gender_DF$avg_deaths_by_sex))*100,
+          ylim = c(0,100),
+          names.arg = c("Male", "Female"),
+          main = "Covid-19 Deaths Average % by Sex",
+          cex.names = 1,
+          xlab = "Gender",
+          ylab = "Average Deaths by %",
+          border = "black",
+          col = c("blue", "pink")
+         ) 
+ 
+```
+
+## Graphing Covid-19 Gender Deaths Based on Total Deaths
+  The below code will graph the different gender groups into a barplot with the calculated average Total Deaths by gender. I am multiplying by 100 so we can see a percentage in the graph.
+```{r}
+
+  barplot(as.numeric(
+   unlist(Covid_19_Avg_Deaths_By_Gender_DF$avg_deaths_by_sex_from_total))*100,
+          ylim = c(0,100),
+          names.arg = c("Male", "Female"),
+          main = "Covid-19 Death Average % by Gender from Total Deaths",
+          cex.names = 1,
+          xlab = "Gender",
+          ylab = "Average Deaths by %",
+          border = "black",
+          col = c("blue", "pink")
+         ) 
+
+```
+
+## Graphing Total Deaths by Gender
+  The below code will graph the different genders into a barplot with the Total Deaths by gender. This graph is simply for informational purposes.
+
+```{r}
+
+  barplot(as.numeric(
+   unlist(Covid_19_Avg_Deaths_By_Gender_DF$total_deaths_by_sex)),
+          names.arg = c("Male", "Female"),
+          main = "Total Deaths by Gender",
+          cex.names = 1,
+          xlab = "Gender",
+          ylab = "Total Deaths",
+          border = "black",
+          col = c("blue", "pink")
+         ) 
+
+```
+
+## Hypothesis Testing
+    This section contains my hypothesis testing in R for the previous statistics. I have included a t_test for both age average and gender average. I have also created an F test for both datasets and a chi-squared test for each dataset. I have also included a one way and two way anova. 
+```{r}
+
+t.test(Covid_19_Avg_Deaths_By_Age_DF$avg_deaths_by_age, 
+       mu = mean_of_Covid_19_Avg_Deaths_By_Age, 
+       alternative = "less")
+
+t.test(Covid_19_Avg_Deaths_By_Gender_DF$avg_deaths_by_sex, 
+       mu = mean_of_Covid_19_Avg_Deaths_By_Gender, 
+       alternative = "less")
+
+var.test(as.numeric(unlist(Covid_19_Avg_Deaths_By_Age_DF$avg_deaths_by_age)),
+         as.numeric(unlist(Covid_19_Avg_Deaths_By_Gender_DF$avg_deaths_by_sex)))
+
+chisq.test(Covid_19_Avg_Deaths_By_Age_DF$avg_deaths_by_age)
+
+chisq.test(Covid_19_Avg_Deaths_By_Gender_DF$avg_deaths_by_sex)
+
+```

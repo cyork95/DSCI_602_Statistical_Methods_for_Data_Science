@@ -1,0 +1,90 @@
+---
+title: "DSCI_602_M6_Lab_Distributions_in_R_Cody_York"
+author: "Cody York"
+date: "10/1/2022"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Create a variable X using seq() function
+
+```{r}
+
+x <- seq(1, 10, length=1000)
+x
+
+```
+
+## Plot Gamma Probability Desnsity for X
+
+```{r}
+library(tidyverse)
+library(dslabs)
+library(ggplot2)
+
+
+
+plot(x,pgamma(x,shape=2,rate=1),type="l",ylim=ylim,
+     main="Gamma Probability Function")
+
+
+
+```
+
+## Plot the Emperical Cumulative Distribution of the Air Quality.Ozone Dataset
+
+```{r}
+
+ozone <- airquality$Ozone
+
+ozone.ecdf <- ecdf(ozone)
+
+plot(ozone.ecdf, xlab = 'Sample Quantiles of Ozone', ylab = 'O', 
+     main = 'Empirical Cumluative Distribution\nOzone Pollution in New York')
+
+```
+
+
+## Explore Shape and Rate for the Gamma Distribution
+    It seems like increasing the shape is increasing the starting y-value of the function, whereas decreasing the rate is elongating the graph. To decide shape and rate you should look at your data and decide what shape and rate would work best for what you are trying to accomplish with the probability.
+```{r}
+
+x <- seq(1, 10, length=1000)
+
+# pgamma(x,shape=2,rate=1)
+ylim <- c(0.1, 1)
+
+## Increasing/Decreasing the Shape
+plot(x,pgamma(x,shape=2,rate=1),type="l",ylim=ylim,
+     main="Gamma Probability Function Original")
+
+plot(x,pgamma(x,shape=1,rate=1),type="l",ylim=ylim,
+     main="Gamma Probability Function with Shape 1")
+
+plot(x,pgamma(x,shape=3,rate=1),type="l",ylim=ylim,
+     main="Gamma Probability Function with Shape 3")
+
+plot(x,pgamma(x,shape=5,rate=1),type="l",ylim=ylim,
+     main="Gamma Probability Function with Shape 5")
+
+# Increasing/Decreasing the Rate
+plot(x,pgamma(x,shape=2,rate=0.5),type="l",ylim=ylim,
+     main="Gamma Probability Function with Rate 0.5")
+
+plot(x,pgamma(x,shape=2,rate=1.5),type="l",ylim=ylim,
+     main="Gamma Probability Function with Rate 2")
+
+plot(x,pgamma(x,shape=2,rate=3),type="l",ylim=ylim,
+     main="Gamma Probability Function with Rate 3")
+
+# Increasing/Decreasing Both
+
+plot(x,pgamma(x,shape=3,rate=0.5),type="l",ylim=ylim,
+     main="Gamma Probability Function with Shape 3 and Rate 0.5")
+
+```

@@ -1,0 +1,69 @@
+---
+title: "DSCI602_M2Lab_Cody_York"
+author: "Cody York"
+date: "2022-09-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Imports
+
+```{r}
+library(matrixStats)
+library("DescTools")
+```
+
+## 2 3X5 Matrix
+
+```{r}
+my.matrix <- matrix(1:15, nrow = 3, ncol = 5)
+print(my.matrix)
+```
+
+## 2a row means and column means
+
+```{r}
+my.matrix.rowMeans <- rowMeans(my.matrix)
+print(my.matrix.rowMeans)
+
+my.matrix.colMeans <- colMeans(my.matrix)
+print(my.matrix.colMeans)
+```
+
+## 2b row standard deviations and column standard deviations
+
+```{r}
+my.matrix.rowSds <- rowSds(my.matrix)
+print(my.matrix.rowSds)
+
+my.matrix.colSds <- colSds(my.matrix)
+print(my.matrix.colSds)
+```
+
+## 3 Load any R dataset and calculate mean,median,mode and maximum
+
+```{r}
+iris_data <- iris
+names(iris_data)
+class(iris_data$Petal.Length)
+petal.length <- iris_data$Petal.Length
+
+petal.length.mean <- mean(petal.length)
+print(petal.length.mean)
+
+petal.length.median <- median(petal.length)
+print(petal.length.median)
+
+petal.length.mode <- Mode(petal.length)
+print(petal.length.mode)
+
+petal.length.max <- max(petal.length)
+print(petal.length.max)
+```
+
+# 4 Feedback from Textbook
+
+   I feel that after a few moments of looking through the code and reading what was being said about the code block I could come to understand. I think the difficulty of the code is suitable to someone who knows programming languages but maybe not R. I like that the textbook explains the methods being used and why. For the syntax of R I can always review the code blocks in the textbook. I think overall this chapter in the textbook was medium difficulty.

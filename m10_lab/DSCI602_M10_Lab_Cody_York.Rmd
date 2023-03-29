@@ -1,0 +1,78 @@
+---
+title: "DSCI602_M10_Lab_Cody_York"
+author: "Cody York"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(ggplot2)
+library(ggthemes)
+library(tidyverse)
+
+```
+
+## Read in the Dataset
+
+```{r}
+
+Crop_Range_GOES0901_R <- read_csv("~/Data Science/R_Scripts/dsci_602/m10_lab/Crop_Range_GOES0901_R.csv")
+View(Crop_Range_GOES0901_R)
+
+```
+
+## Sample 2000 Rows and Make a Histrogram for icount
+
+```{r}
+
+set.seed(111)
+
+number_of_samples <- 2000
+
+GOES0901_Sample_Data <- Crop_Range_GOES0901_R[sample(nrow(Crop_Range_GOES0901_R),
+                                                     number_of_samples),1:6]
+
+
+GOES0901_Sample_Data %>% 
+  ggplot(aes(x=icount)) +
+  geom_histogram(color="Black", fill="Blue") +
+  xlab("Number of Occurance") +
+  ylab("Values from icount Field") +
+  ggtitle("See Histogram of icount from Sample") +
+  theme_clean()
+
+
+```
+
+
+## Sample 2000 Rows and Make a Histrogram for mean of 100 icount
+
+```{r}
+
+set.seed(111)
+
+number_of_samples <- 2000
+
+runs <- 100
+
+one.trial <- function(){
+  GOES0901_Sample_Data <- Crop_Range_GOES0901_R[sample(
+                                                  nrow(Crop_Range_GOES0901_R),
+                                                  number_of_samples),1:6]
+  mean(GOES0901_Sample_Data$icount)
+}
+
+icount_means <- replicate(runs, one.trial())
+icount_means <- data.frame(icount_means)
+
+ggplot(icount_means, aes(x=icount_means)) +
+geom_histogram(color="Black", fill="Blue") +
+xlab("Number of Occurance") +
+ylab("Values from Mean of icount Field Taken Randomly") +
+ggtitle("See Histogram of Mean of icount Taken Randomly from Samples") +
+theme_clean()
+
+```
